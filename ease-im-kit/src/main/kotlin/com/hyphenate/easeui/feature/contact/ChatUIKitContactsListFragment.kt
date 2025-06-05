@@ -45,14 +45,14 @@ import kotlinx.coroutines.launch
 open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactListLayoutBinding>(),
     OnItemLongClickListener, OnContactEventListener{
     private var adapter: ChatUIKitContactListAdapter? = null
-    private var headerAdapter:ChatUIKitCustomHeaderAdapter?=null
+    protected var mHheaderAdapter:ChatUIKitCustomHeaderAdapter?=null
     private var headerItemClickListener: OnHeaderItemClickListener? = null
     private var userListItemClickListener: OnUserListItemClickListener? = null
     private var itemLongClickListener: OnItemLongClickListener? = null
     private var contactSelectedListener:OnContactSelectedListener?=null
     private var backPressListener: View.OnClickListener? = null
     private var viewType: ChatUIKitListViewType? = ChatUIKitListViewType.LIST_CONTACT
-    private var headerList:List<ChatUIKitCustomHeaderItem>? = null
+    protected var headerList:List<ChatUIKitCustomHeaderItem>? = null
     private var searchType: ChatUIKitSearchType? = null
     private var selectedMembers:MutableList<String> = mutableListOf()
     private val contactViewModel by lazy { ViewModelProvider(this)[ChatUIKitContactListViewModel::class.java] }
@@ -114,11 +114,13 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
                 searchBar.visibility = if (getBoolean(Constant.KEY_USE_SEARCH, false)) View.VISIBLE else View.GONE
                 if (getBoolean(Constant.KEY_SHOW_ITEM_HEADER, false)) {
                     if (headerList.isNullOrEmpty()) headerList = ChatUIKitHeaderItemConfig(mContext).getDefaultHeaderItemModels()
-                    if (headerAdapter == null) {
-                        headerAdapter = ChatUIKitCustomHeaderAdapter()
+                    if (mHheaderAdapter == null) {
+                        mHheaderAdapter = ChatUIKitCustomHeaderAdapter()
                     }
-                    headerAdapter?.let {
-                        it.setHasStableIds(true)
+                    mHheaderAdapter?.let {
+                        if (!it.hasObservers()) {//这里报异常,暂时屏蔽
+                            it.setHasStableIds(true)
+                        }
                         listContact.addHeaderAdapter(it)
                         if (headerList?.isNotEmpty() == true){
                             updateRequestCount()
@@ -160,7 +162,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
             )
         }
 
-        headerAdapter?.setOnHeaderItemClickListener(object : OnHeaderItemClickListener {
+        mHheaderAdapter?.setOnHeaderItemClickListener(object : OnHeaderItemClickListener {
             override fun onHeaderItemClick(v: View, itemIndex: Int,itemId:Int?) {
                 if (headerItemClickListener != null){
                     headerItemClickListener?.onHeaderItemClick(v,itemIndex,itemId)
@@ -339,7 +341,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
     }
 
     private fun setHeaderAdapter(headerAdapter:ChatUIKitCustomHeaderAdapter?){
-        this.headerAdapter = headerAdapter
+        this.mHheaderAdapter = headerAdapter
     }
 
     private fun setOnHeaderItemClickListener(listener: OnHeaderItemClickListener?){
@@ -358,7 +360,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
         this.contactSelectedListener = listener
     }
 
-    private fun updateRequestCount(){
+    protected fun updateRequestCount(){
         mContext.mainScope().launch {
             headerList?.map {
                 if (it.headerTitle == getString(R.string.uikit_contact_header_request)){
@@ -368,7 +370,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
                     }
                 }
             }
-            headerAdapter?.setData(headerList?.toMutableList())
+            mHheaderAdapter?.setData(headerList?.toMutableList())
         }
     }
 
@@ -381,7 +383,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
         private val bundle: Bundle = Bundle()
         protected var customFragment: ChatUIKitContactsListFragment? = null
         protected var adapter: ChatUIKitContactListAdapter? = null
-        protected var headerAdapter:ChatUIKitCustomHeaderAdapter? = null
+        private var headerAdapter:ChatUIKitCustomHeaderAdapter? = null
         private var headerItemClickListener: OnHeaderItemClickListener? = null
         private var userListItemClickListener: OnUserListItemClickListener? = null
         private var itemLongClickListener: OnItemLongClickListener? = null
