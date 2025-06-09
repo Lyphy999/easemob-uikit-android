@@ -289,13 +289,14 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
             }
         }
         binding.itemGroupAnnouncement.tvContent?.text = group?.announcement
+        binding.itemGroupAnnouncement.visibility = View.GONE
         if (group?.isOwner() == true){
             binding.itemSpacing.visibility = View.VISIBLE
             binding.itemGroupName.visibility = View.VISIBLE
             binding.itemGroupDescribe.visibility = View.VISIBLE
             binding.itemGroupName.tvContent?.text = group?.groupName
             binding.itemGroupDescribe.tvContent?.text = group?.description
-            binding.itemGroupMute.visibility = View.VISIBLE
+//            binding.itemGroupMute.visibility = View.VISIBLE
         }else{
             binding.itemSpacing.visibility = View.GONE
             binding.itemGroupName.visibility = View.GONE
