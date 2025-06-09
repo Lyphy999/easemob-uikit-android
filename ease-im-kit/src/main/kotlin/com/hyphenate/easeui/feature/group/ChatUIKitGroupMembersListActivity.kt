@@ -6,9 +6,12 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.hyphenate.EMValueCallBack
+import com.hyphenate.chat.EMGroup
 import com.hyphenate.easeui.ChatUIKitClient
 import com.hyphenate.easeui.R
 import com.hyphenate.easeui.base.ChatUIKitBaseActivity
@@ -37,6 +40,9 @@ import com.hyphenate.easeui.model.ChatUIKitUser
 import com.hyphenate.easeui.model.getNickname
 import com.hyphenate.easeui.viewmodel.group.ChatUIKitGroupViewModel
 import com.hyphenate.easeui.viewmodel.group.IGroupRequest
+import com.hyphenate.easeui.widget.ChatUIKitSwitchItemView
+import com.hyphenate.easeui.widget.ChatUIKitSwitchItemView.OnCheckedChangeListener
+import kotlinx.coroutines.launch
 
 open class ChatUIKitGroupMembersListActivity:ChatUIKitBaseActivity<UikitActivityGroupMemberLayoutBinding>(),
     View.OnClickListener , IUIKitGroupResultView, IGroupMemberEventListener{
@@ -140,7 +146,100 @@ open class ChatUIKitGroupMembersListActivity:ChatUIKitBaseActivity<UikitActivity
         changeToMemberList()
         if (actionType == ChatUIKitGroupMemberType.GROUP_MEMBER_CHANGE_OWNER){
             updateChangeOwnerLayout()
-        }else{
+        }else if (actionType == ChatUIKitGroupMemberType.GROUP_MEMBER_MUTE){
+            binding.layoutMuteAll.visibility = View.VISIBLE
+            binding.tvRightConfirm.visibility = View.VISIBLE
+            binding.tvRightConfirm.setOnClickListener {
+
+                var muteList = memberFragment?.mListAdapter?.muteUserIdList?: mutableListOf<String>()
+
+                var unMuteList = mutableListOf<String>()
+                memberFragment?.mListAdapter?.data?.forEach {
+                    if(!muteList.contains(it.userId)){
+                        unMuteList.add(it.userId)
+                    }
+                }
+
+
+                ChatClient.getInstance().groupManager()
+                    .asyncUnMuteGroupMembers(groupId, unMuteList, object : EMValueCallBack<EMGroup> {
+                        override fun onSuccess(value: EMGroup?) {
+//                                                muteUserIdList.remove(userId)
+                        }
+
+                        override fun onError(code: Int, error: String?) {
+//                                                Toast.makeText(mContext, "解除禁言失败: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+
+
+                ChatClient.getInstance().groupManager()
+                    .asyncMuteGroupMembers(groupId, muteList, 3600 *3600 * 2400, object : EMValueCallBack<EMGroup> {
+                        override fun onSuccess(value: EMGroup?) {
+//                                                muteUserIdList.add(userId)
+                        }
+
+                        override fun onError(code: Int, error: String?) {
+//                                                Toast.makeText(mContext, "禁言失败: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+
+
+                finish()
+            }
+            binding.layoutMuteAll.setSwitchTarckDrawable(R.drawable.uikit_switch_track_selector)
+            binding.layoutMuteAll.setSwitchThumbDrawable(R.drawable.uikit_switch_thumb_selector)
+            val group = ChatClient.getInstance().groupManager().getGroup(groupId)
+            binding.layoutMuteAll.setChecked(group?.isAllMemberMuted == true)
+            binding.layoutMuteAll.setOnCheckedChangeListener (object  :
+                OnCheckedChangeListener{
+                override fun onCheckedChanged(
+                    buttonView: ChatUIKitSwitchItemView?,
+                    isChecked: Boolean
+                ) {
+                    groupId?.let { gid ->
+                        if (isChecked) {
+                            // 开启全员禁言
+                            ChatClient.getInstance().groupManager()
+                                .muteAllMembers(gid, object : EMValueCallBack<EMGroup> {
+                                    override fun onSuccess(value: EMGroup?) {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "已开启全员禁言", Toast.LENGTH_SHORT).show()
+                                            memberFragment?.loadLocalData()   // 刷新成员禁言标记
+                                        }
+                                    }
+
+                                    override fun onError(code: Int, error: String?) {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "设置失败: $error", Toast.LENGTH_SHORT).show()
+                                            binding.layoutMuteAll.setChecked(false)
+                                        }
+                                    }
+                                })
+                        } else {
+                            // 关闭全员禁言
+                            ChatClient.getInstance().groupManager()
+                                .unmuteAllMembers(gid, object : EMValueCallBack<EMGroup> {
+                                    override fun onSuccess(value: EMGroup?) {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "已关闭全员禁言", Toast.LENGTH_SHORT).show()
+                                            memberFragment?.loadLocalData()
+                                        }
+                                    }
+
+                                    override fun onError(code: Int, error: String?) {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "操作失败: $error", Toast.LENGTH_SHORT).show()
+                                            binding.layoutMuteAll.setChecked(true)
+                                        }
+                                    }
+                                })
+                        }
+                    }
+                }
+
+            })
+        } else{
             updateNormalLayout()
         }
     }

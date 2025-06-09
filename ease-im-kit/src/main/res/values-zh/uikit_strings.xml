@@ -312,4 +312,7 @@
     <string name="uikit_permission_local_notification_content">用于收到新消息时推送通知</string>
 
 
+    <string name="uikit_message_group_announcement">群公告</string>
+    <string name="uikit_message_group_mute">群禁言</string>
+    <string name="uikit_message_group_mute_all">全员禁言</string>
 </resources>

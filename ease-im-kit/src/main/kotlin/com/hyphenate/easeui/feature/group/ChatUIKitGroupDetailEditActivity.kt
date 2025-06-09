@@ -10,9 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.hyphenate.EMCallBack
+import com.hyphenate.EMValueCallBack
+import com.hyphenate.chat.EMGroup
 import com.hyphenate.easeui.ChatUIKitClient
 import com.hyphenate.easeui.R
 import com.hyphenate.easeui.base.ChatUIKitBaseActivity
@@ -102,6 +106,15 @@ open class ChatUIKitGroupDetailEditActivity:ChatUIKitBaseActivity<UikitLayoutGro
                 showSoftInput(binding.etDescribe)
                 updateSaveView(binding.etDescribe.text.length)
             }
+            EditType.ACTION_EDIT_GROUP_ANNOUNCEMENT -> {
+                binding.editDescribeLayout.visibility = View.VISIBLE
+                binding.etDescribe.setText(group?.announcement ?: "")
+                binding.inputDescribeCount.text = resources.getString(R.string.uikit_group_change_describe_count,group?.description?.length ?: 0)
+                binding.titleBar.setTitle(resources.getString(R.string.uikit_message_group_announcement))
+                showSoftInput(binding.etDescribe)
+                updateSaveView(binding.etDescribe.text.length)
+            }
+
             EditType.ACTION_EDIT_GROUP_ATTRIBUTE -> {
                 binding.editAttributeLayout.visibility = View.VISIBLE
                 binding.inputAttributeCount.text = resources.getString(R.string.uikit_group_change_name_count,groupNickName?.length ?: 0)
@@ -157,6 +170,49 @@ open class ChatUIKitGroupDetailEditActivity:ChatUIKitBaseActivity<UikitLayoutGro
                                     groupId = it,
                                     description = binding.etDescribe.text.trim().toString()
                                 )
+                            }
+                        }
+                        EditType.ACTION_EDIT_GROUP_ANNOUNCEMENT -> {
+                            groupId?.let {
+//                                ChatClient.getInstance().groupManager()
+//                                    .asyncUpdateGroupAnnouncement(groupId,  binding.etDescribe.text.trim().toString(), object :
+//                                        EMValueCallBack<EMGroup> {
+//                                        override fun onSuccess(value: EMGroup?) {
+////                                                muteUserIdList.remove(userId)
+//                                        }
+//
+//                                        override fun onError(code: Int, error: String?) {
+////                                                Toast.makeText(mContext, "解除禁言失败: $error", Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    })
+
+
+                                ChatClient.getInstance().groupManager().asyncUpdateGroupAnnouncement(groupId, binding.etDescribe.text.trim().toString(),
+                                    object : EMCallBack {
+                                    override fun onSuccess() {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "群公告更新成功", Toast.LENGTH_SHORT).show()
+                                            ChatUIKitFlowBus.with<ChatUIKitEvent>(ChatUIKitEvent.EVENT.UPDATE + ChatUIKitEvent.TYPE.GROUP)
+                                                .post(lifecycleScope, ChatUIKitEvent(ChatUIKitConstant.EVENT_UPDATE_GROUP_DESCRIPTION, ChatUIKitEvent.TYPE.GROUP, groupId))
+                                            finish()
+                                        }
+                                    }
+
+                                    override fun onError(code: Int, error: String?) {
+                                        runOnUiThread {
+                                            Toast.makeText(mContext, "群公告更新失败：$error", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+
+                                    override fun onProgress(progress: Int, status: String?) {
+                                        // 可选：不需要实现
+                                    }
+                                })
+
+//                                groupViewModel?.changeChatGroupAnnouncement(
+//                                    groupId = it,
+//                                    description = binding.etDescribe.text.trim().toString()
+//                                )
                             }
                         }
                         EditType.ACTION_EDIT_GROUP_ATTRIBUTE -> {
@@ -362,5 +418,6 @@ enum class EditType(var code:Int){
     ACTION_EDIT_GROUP_NAME(0),
     ACTION_EDIT_GROUP_DESCRIBE(1),
     ACTION_EDIT_GROUP_ATTRIBUTE(2),
-    ACTION_EDIT_THREAD_NAME(3)
+    ACTION_EDIT_THREAD_NAME(3),
+    ACTION_EDIT_GROUP_ANNOUNCEMENT(4)
 }
