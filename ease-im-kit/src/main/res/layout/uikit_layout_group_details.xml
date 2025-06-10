@@ -159,6 +159,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"/>
 
+            <com.hyphenate.easeui.widget.ChatUIKitArrowItemView
+                android:id="@+id/item_group_announcement"
+                app:layout_constraintTop_toBottomOf="@+id/item_group_describe"
+                app:arrowItemTitle="@string/uikit_message_group_announcement"
+                style="@style/ease_group_detail_arrow_item"
+                app:arrowItemShowArrow="true"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"/>
+
+            <com.hyphenate.easeui.widget.ChatUIKitArrowItemView
+                android:id="@+id/item_group_mute"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/item_group_announcement"
+                app:arrowItemTitle="@string/uikit_message_group_mute"
+                style="@style/ease_group_detail_arrow_item"
+                app:arrowItemShowArrow="true"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"/>
+
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>

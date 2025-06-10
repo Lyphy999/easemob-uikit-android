@@ -95,7 +95,8 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
 
         override fun onAnnouncementChanged(groupId: String?, announcement: String?) {
             if (this@ChatUIKitGroupDetailActivity.groupId == groupId){
-                binding.tvSignature.text = announcement
+//                binding.tvSignature.text = announcement
+                binding.itemGroupAnnouncement.tvContent?.text = group?.announcement
             }
         }
 
@@ -105,6 +106,7 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
                     binding.itemSpacing.visibility = View.VISIBLE
                     binding.itemGroupName.visibility = View.VISIBLE
                     binding.itemGroupDescribe.visibility = View.VISIBLE
+                    binding.itemGroupMute.visibility = View.VISIBLE
                 }
             }
         }
@@ -197,6 +199,9 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
         binding.itemClear.setOnClickListener(this)
         binding.itemGroupName.setOnClickListener(this)
         binding.itemGroupDescribe.setOnClickListener(this)
+        binding.itemGroupAnnouncement.setOnClickListener(this)
+        binding.itemGroupMute.setOnClickListener(this)
+
         binding.tvNumber.setOnClickListener(this)
         gridAdapter?.setContactDetailItemClickListener(this)
     }
@@ -219,6 +224,7 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
                     binding.itemSpacing.visibility = View.GONE
                     binding.itemGroupName.visibility = View.GONE
                     binding.itemGroupDescribe.visibility = View.GONE
+                    binding.itemGroupMute.visibility = View.GONE
                 }else{
                     updateView()
                 }
@@ -282,16 +288,21 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
                 }
             }
         }
+        binding.itemGroupAnnouncement.tvContent?.text = group?.announcement
+        binding.itemGroupAnnouncement.visibility = View.GONE
         if (group?.isOwner() == true){
             binding.itemSpacing.visibility = View.VISIBLE
             binding.itemGroupName.visibility = View.VISIBLE
             binding.itemGroupDescribe.visibility = View.VISIBLE
             binding.itemGroupName.tvContent?.text = group?.groupName
             binding.itemGroupDescribe.tvContent?.text = group?.description
+//            binding.itemGroupMute.visibility = View.VISIBLE
         }else{
             binding.itemSpacing.visibility = View.GONE
             binding.itemGroupName.visibility = View.GONE
             binding.itemGroupDescribe.visibility = View.GONE
+            binding.itemGroupMute.visibility = View.GONE
+
         }
     }
 
@@ -349,6 +360,32 @@ open class ChatUIKitGroupDetailActivity:ChatUIKitBaseActivity<UikitLayoutGroupDe
                     )
                 }
             }
+            R.id.item_group_announcement -> {
+                if (group?.isOwner() == true){
+                    groupId?.let {
+                        startActivity(ChatUIKitGroupDetailEditActivity.createIntent(
+                            this,it,EditType.ACTION_EDIT_GROUP_ANNOUNCEMENT)
+                        )
+                    }
+                }
+
+            }
+
+            R.id.item_group_mute -> {
+                if (group?.isOwner() == true){
+                    groupId?.let {
+                        startActivity(
+                            ChatUIKitGroupMembersListActivity.createIntent(
+                                context = this,
+                                groupId = it,
+                                type = ChatUIKitGroupMemberType.GROUP_MEMBER_MUTE
+                            )
+                        )
+                    }
+                }
+
+            }
+
             R.id.tv_number -> {
                 copyGroupId()
             }

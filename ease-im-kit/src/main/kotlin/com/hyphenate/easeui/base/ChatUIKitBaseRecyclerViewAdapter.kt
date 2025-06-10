@@ -228,6 +228,17 @@ abstract class ChatUIKitBaseRecyclerViewAdapter<T> :
         notifyDataSetChanged()
     }
 
+
+    var isShowMute = false
+    var muteUserIdList: MutableList<String> = mutableListOf()
+
+    fun setMuteData(data: MutableList<String>) {
+        isShowMute = true
+        muteUserIdList = data
+        notifyDataSetChanged()
+    }
+
+
     /**
      * Add a single piece of data
      * @param item

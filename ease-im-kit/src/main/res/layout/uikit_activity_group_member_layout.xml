@@ -79,6 +79,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
+
+
+            <TextView
+                android:id="@+id/tv_right_confirm"
+                android:layout_weight="1"
+                android:paddingVertical="5dp"
+                android:paddingHorizontal="12dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                android:text="@string/uikit_dialog_confirm"
+                style="@style/ease_group_member_add_count"
+                android:textColor="@color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </RelativeLayout>
@@ -92,9 +108,18 @@
         android:visibility="gone"
         app:search_text="@string/uikit_contact_search"/>
 
+    <com.hyphenate.easeui.widget.ChatUIKitSwitchItemView
+        android:id="@+id/layoutMuteAll"
+        app:layout_constraintTop_toBottomOf="@+id/search_bar"
+        app:switchItemTitle="@string/uikit_message_group_mute_all"
+        style="@style/ease_group_detail_switch_item"
+        android:layout_width="match_parent"
+        android:layout_height="54dp" />
+
+
     <FrameLayout
         android:id="@+id/fl_fragment"
-        app:layout_constraintTop_toBottomOf="@+id/search_bar"
+        app:layout_constraintTop_toBottomOf="@+id/layoutMuteAll"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="0dp"/>

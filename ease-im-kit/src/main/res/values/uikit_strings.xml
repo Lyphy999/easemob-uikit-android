@@ -310,5 +310,10 @@
     <string name="uikit_permission_sdcard_content">Used to access images and videos on the device, allowing users to send local files</string>
     <string name="uikit_permission_local_notification_content">Used to push notifications when new messages are received</string>
 
+    <string name="uikit_message_group_announcement">Group announcement</string>
+    <string name="uikit_message_group_mute">Group mute</string>
+    <string name="uikit_message_group_mute_all">Mute all</string>
+
+
 
 </resources>

@@ -1,11 +1,15 @@
 package com.hyphenate.easeui.feature.group.fragments
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.hyphenate.EMValueCallBack
+import com.hyphenate.chat.EMGroup
 import com.hyphenate.easeui.ChatUIKitClient
 import com.hyphenate.easeui.base.ChatUIKitBaseListFragment
 import com.hyphenate.easeui.base.ChatUIKitBaseRecyclerViewAdapter
@@ -83,10 +87,39 @@ open class ChatUIKitGroupMemberFragment:ChatUIKitBaseListFragment<ChatUIKitUser>
         loadData()
     }
 
+
     open fun loadData(){
         groupId?.let {
             groupViewModel?.fetchGroupMemberFromService(it)
         }
+//        ChatClient.getInstance().groupManager().asyncFetchGroupMuteList(groupId,1,100000,){}
+//        val group = ChatClient.getInstance().groupManager().getGroup(groupId)
+//        var muteUserIdList = group?.muteList?.toMutableList() ?: mutableListOf()
+//        Log.d("groupMute", "loadData: ${muteUserIdList.size}")
+//        mListAdapter.setMuteData(muteUserIdList)
+
+        ChatClient.getInstance().groupManager().asyncFetchGroupMuteList(
+            groupId,
+            1,      // pageNum 从 1 开始
+            20000,    // pageSize，设大一点获取更多用户
+            object : EMValueCallBack<Map<String, Long>> {
+                override fun onSuccess(muteMap: Map<String, Long>?) {
+                    val muteUserIdList = muteMap?.keys?.toMutableList() ?: mutableListOf()
+                    Log.d("groupMute", "asyncFetchGroupMuteList size: ${muteUserIdList.size}")
+
+                    // 切换回主线程更新 UI
+                    (mContext as? Activity)?.runOnUiThread {
+                        mListAdapter.setMuteData(muteUserIdList)
+                        mListAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                override fun onError(code: Int, error: String?) {
+                    Log.e("groupMute", "获取禁言列表失败: $code $error")
+                }
+            }
+        )
+
     }
 
     fun loadLocalData(){

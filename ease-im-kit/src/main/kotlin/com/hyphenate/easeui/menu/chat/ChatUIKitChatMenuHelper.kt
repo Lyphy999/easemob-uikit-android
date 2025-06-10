@@ -76,7 +76,7 @@ class ChatUIKitChatMenuHelper: ChatUIKitMenuHelper() {
                 findItemVisible(R.id.action_chat_recall, canRecallMessage(it))
             }
             if (it.status() == ChatMessageStatus.SUCCESS)
-                findItemVisible(R.id.action_chat_report, true)
+                findItemVisible(R.id.action_chat_report, false)
             if (type == ChatMessageType.TXT) findItemVisible(R.id.action_chat_copy, true)
             if (it.chatType === ChatType.GroupChat && !it.isChatThreadMessage && it.chatThread == null) {
                 findItemVisible(R.id.action_chat_thread, true)
