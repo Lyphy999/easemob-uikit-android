@@ -58,7 +58,7 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
     private val contactViewModel by lazy { ViewModelProvider(this)[ChatUIKitContactListViewModel::class.java] }
     val dialogController by lazy { ChatUIKitConvDialogController(mContext, this) }
 
-    private val returnSearchClickResult: ActivityResultLauncher<Intent> = registerForActivityResult(
+    private var returnSearchClickResult: ActivityResultLauncher<Intent>? = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result -> onClickResult(result) }
 
@@ -154,7 +154,14 @@ open class ChatUIKitContactsListFragment: ChatUIKitBaseFragment<FragmentContactL
         setMenuItemClickListener()
 
         binding?.searchBar?.setOnClickListener {
-            returnSearchClickResult.launch(
+            var actResultLauncher = returnSearchClickResult
+            if (actResultLauncher == null) {
+                actResultLauncher = registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) { result -> onClickResult(result) }
+                returnSearchClickResult = actResultLauncher
+            }
+            actResultLauncher.launch(
                 ChatUIKitSearchActivity.createIntent(
                     context = mContext,
                     searchType = searchType

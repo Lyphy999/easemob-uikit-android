@@ -249,10 +249,16 @@ class ChatUIKitNotificationMsgManager {
      * Make all message in notification conversation as read
      */
     fun markAllMessagesAsRead() {
-        val conversation: ChatConversation = ChatClient.getInstance().chatManager()
-            .getConversation(ChatUIKitConstant.DEFAULT_SYSTEM_MESSAGE_ID)
-        conversation.markAllMessagesAsRead()
-
+        try {
+            val conversation: ChatConversation? = ChatClient.getInstance().chatManager()
+                .getConversation(ChatUIKitConstant.DEFAULT_SYSTEM_MESSAGE_ID)
+            if (conversation == null) {//屏蔽NPE
+                return
+            }
+            conversation.markAllMessagesAsRead()
+        } catch (ignore: Exception) {
+            return
+        }
         val context = ChatUIKitClient.getContext()
         context?.let {
             it.mainScope().launch {
